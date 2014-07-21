@@ -5,13 +5,13 @@ public class Startup {
 
 	public static void main(String[] args) {
 		
-		File file = new File("C:\\Users\\cbravo\\Desktop\\decrypt.png");
+		File file = new File("images/decrypt.png");
 
 		
 		System.out.println(file.getAbsolutePath());
 		try {
-			System.out.println(PrimeSuspects.embedIntoImage(file, "IDONTREALLYLIKEDRWHOIDONOTTHINKTHESHOWISTHATGREAT"));
-			String message = PrimeSuspects.retreiveFromImage(file);
+			System.out.println(Steganog.embedIntoImage(file, "DR WHO IS NOT A SHOW I WATCH             "));
+			String message = Steganog.retreiveFromImage(file);
 			System.out.println();
 			System.out.println("Mesasge: "+message);
 			

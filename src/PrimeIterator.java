@@ -32,6 +32,7 @@ public class PrimeIterator implements Iterator<Integer> {
 	/**
 	 * Returns whether this iterator has any more prime numbers less than max
 	 **/
+	@Override
 	public boolean hasNext() {
 		int temp = it+1;
 		if(list.size()>temp){
@@ -46,6 +47,7 @@ public class PrimeIterator implements Iterator<Integer> {
 	/**
 	 * Gets the next prime number
 	 **/
+	@Override
 	public Integer next() {
 		it++;
 		int num = list.get(it);

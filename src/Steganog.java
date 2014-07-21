@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class PrimeSuspects {
+public class Steganog {
 	/**
 	 * Takes a clean image and changes the prime-indexed pixels to secretly
 	 * carry the message
@@ -13,44 +13,70 @@ public class PrimeSuspects {
 	public static File embedIntoImage(File original, String message)
 			throws IOException {
 
-		BufferedImage bufferedOriginal = ImageIO.read(original);
-
-		PrimeIterator it = new PrimeIterator(bufferedOriginal.getHeight()
-				* bufferedOriginal.getWidth());
+		BufferedImage image = ImageIO.read(original);
+		PrimeIterator ite = new PrimeIterator(image.getWidth()
+				* image.getHeight());
 		int temp;
-		int prime = it.next();
+		int prime = ite.next();
 		int place = 0;
 
-		for (int x = 0; x < bufferedOriginal.getWidth(); x++) {
-			for (int y = 0; y < bufferedOriginal.getHeight(); y++) {
-				if ((x * bufferedOriginal.getHeight() + y) == prime) {
+		for (int i = 0; i < image.getWidth(); i++) {
+			for (int j = 0; j < image.getHeight(); j++) {
+
+				if ((i * image.getHeight() + j) == prime) {
 
 					if (message.length() > place) {
 						char holder = message.charAt(place);
-						String toSave = Integer.toBinaryString(holder)
-								.substring(1);
-						
-						temp = bufferedOriginal.getRGB(x, y);
-						
-						String s = Integer.toBinaryString(temp);
-						String pix = s.substring(0, 13) + toSave.charAt(0) + toSave.charAt(1) + s.substring(16, 21) + toSave.charAt(2) + toSave.charAt(3) + s.substring(24, 29) + toSave.charAt(4) + toSave.charAt(5) + s.substring(32);
-					
-						temp = Integer.parseInt(pix, 2);
-						
-						bufferedOriginal.setRGB(x, y, temp);
+						Integer result = 0;
+						if (holder != ' ') {
+							System.out.println(holder);
+							holder -= 31;
+
+							String toSave = Integer.toBinaryString(holder);
+							System.out.println(toSave);
+							temp = image.getRGB(j, i);
+
+							String s = Integer.toBinaryString(temp);
+
+							System.out.println(s);
+
+							String r = s.substring(0, 14) + toSave.charAt(0)
+									+ toSave.charAt(1);
+							String g = s.substring(16, 22) + toSave.charAt(2)
+									+ toSave.charAt(3);
+							String b = s.substring(24, 30) + toSave.charAt(4)
+									+ toSave.charAt(5);
+
+							String encoded = r + g + b;
+							System.out.println(encoded);
+
+							char[] newPix = encoded.toCharArray();
+							result = 0;
+							int count = 0;
+							for (int i2 = newPix.length - 1; i2 >= 0; i2--) {
+								if (newPix[i2] == '1')
+									result += (int) Math.pow(2, count);
+								count++;
+							}
+
+						}
+
+						image.setRGB(j, i, result);
+
+						if (ite.hasNext()) {
+							prime = ite.next();
+						}
+
+						place++;
 
 					} else {
 						break;
 					}
-					place++;
 
-					if (it.hasNext()) {
-						prime = it.next();
-					}
 				}
 			}
 		}
-		ImageIO.write(bufferedOriginal, "PNG", original);
+		ImageIO.write(image, "PNG", original);
 		return original;
 
 	}
@@ -65,16 +91,9 @@ public class PrimeSuspects {
 		int temp;
 
 		BufferedImage image = ImageIO.read(toDecode);
-		int pixels[][];
 		PrimeIterator it = new PrimeIterator(image.getWidth()
 				* image.getHeight());
-		pixels = new int[image.getWidth()][image.getHeight()];
-
-		for (int i = 0; i < image.getHeight(); i++) {
-			for (int j = 0; j < image.getWidth(); j++) {
-				pixels[i][j] = image.getRGB(i, j);
-			}
-		}
+		
 
 		int prime = it.next();
 
@@ -82,7 +101,7 @@ public class PrimeSuspects {
 			for (int j = 0; j < image.getHeight(); j++) {
 
 				if ((i * image.getHeight() + j) == prime) {
-					temp = pixels[j][i];
+					temp = image.getRGB(j,i);
 					String s = Integer.toBinaryString(temp);
 
 					String letter = s.charAt(14) + "" + s.charAt(15)
@@ -90,8 +109,6 @@ public class PrimeSuspects {
 							+ s.charAt(31) + "";
 					int decimal = Integer.parseInt(letter, 2);
 					decimal += 32;
-
-					// System.out.print((char) decimal); // test printing
 
 					message += (char) decimal;// convert and add to message
 					if (it.hasNext()) {
